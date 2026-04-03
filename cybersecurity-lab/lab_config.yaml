@@ -1,0 +1,83 @@
+# Cybersecurity Lab Configuration
+# Defines VMs, networks, and snapshot policies for the lab environment.
+
+networks:
+  attacker:
+    subnet: "10.0.1.0/24"
+    gateway: "10.0.1.1"
+    type: "intnet"
+    name: "lab-attacker"
+
+  targets:
+    subnet: "10.0.2.0/24"
+    gateway: "10.0.2.1"
+    type: "intnet"
+    name: "lab-targets"
+
+  monitoring:
+    subnet: "10.0.3.0/24"
+    gateway: "10.0.3.1"
+    type: "intnet"
+    name: "lab-monitor"
+
+virtual_machines:
+  kali-linux:
+    os_type: "Debian_64"
+    memory_mb: 4096
+    cpus: 2
+    disk_gb: 40
+    network: "attacker"
+    ip: "10.0.1.10"
+    description: "Primary attack platform"
+    iso_url: "https://cdimage.kali.org/kali-2024.1/kali-linux-2024.1-installer-amd64.iso"
+    snapshots:
+      - name: "clean-install"
+        description: "Fresh Kali installation with tools updated"
+      - name: "pre-engagement"
+        description: "Tools configured, wordlists downloaded"
+
+  metasploitable2:
+    os_type: "Ubuntu_64"
+    memory_mb: 1024
+    cpus: 1
+    disk_gb: 20
+    network: "targets"
+    ip: "10.0.2.10"
+    description: "Deliberately vulnerable Linux target"
+    download_url: "https://sourceforge.net/projects/metasploitable/"
+    snapshots:
+      - name: "factory-reset"
+        description: "Default vulnerable state"
+
+  dvwa:
+    os_type: "Ubuntu_64"
+    memory_mb: 1024
+    cpus: 1
+    disk_gb: 10
+    network: "targets"
+    ip: "10.0.2.20"
+    description: "Damn Vulnerable Web Application"
+    notes: "Run via Docker: docker run -d -p 80:80 vulnerables/web-dvwa"
+    snapshots:
+      - name: "low-security"
+        description: "DVWA set to low difficulty"
+      - name: "medium-security"
+        description: "DVWA set to medium difficulty"
+
+  security-onion:
+    os_type: "Ubuntu_64"
+    memory_mb: 8192
+    cpus: 4
+    disk_gb: 200
+    network: "monitoring"
+    ip: "10.0.3.10"
+    description: "Network security monitoring and IDS"
+    iso_url: "https://github.com/Security-Onion-Solutions/securityonion"
+    snapshots:
+      - name: "configured"
+        description: "Sensors active, monitoring lab traffic"
+
+snapshot_policy:
+  auto_snapshot_before_engagement: true
+  naming_convention: "{vm_name}-{date}-{description}"
+  max_snapshots_per_vm: 5
