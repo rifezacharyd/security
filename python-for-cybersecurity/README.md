@@ -25,7 +25,8 @@ python-for-cybersecurity/
 └── examples/
     ├── basic_socket.py       # Socket programming fundamentals
     ├── basic_requests.py     # HTTP requests and web interaction
-    └── basic_subprocess.py   # System command integration
+    ├── basic_subprocess.py   # System command integration
+    └── ua_fuzzer.py          # User-Agent fuzzing and anomaly detection
 ```
 
 ## Usage
@@ -36,6 +37,7 @@ Each example script in `examples/` demonstrates a core Python module used in sec
 python examples/basic_socket.py
 python examples/basic_requests.py
 python examples/basic_subprocess.py
+python examples/ua_fuzzer.py https://your-target.com -v
 ```
 
 ## References
