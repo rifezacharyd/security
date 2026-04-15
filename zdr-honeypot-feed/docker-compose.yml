@@ -1,0 +1,29 @@
+# Runs alongside T-Pot on the honeypot VPS.
+#
+# T-Pot writes cowrie events to /data/cowrie/log/cowrie.json which we mount
+# read-only. The GeoLite2 DB is mounted read-only from a MaxMind-updated
+# volume (see deploy/README.md for geoipupdate setup).
+
+services:
+  feed:
+    build: .
+    image: zdr-honeypot-feed:latest
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      ZDR_HOST: 0.0.0.0
+      ZDR_PORT: 8080
+      ZDR_COWRIE_LOG_PATH: /data/cowrie/log/cowrie.json
+      ZDR_GEOIP_DB_PATH: /data/geoip/GeoLite2-City.mmdb
+    volumes:
+      - /data/tpot/cowrie/log:/data/cowrie/log:ro
+      - /data/geoip:/data/geoip:ro
+    ports:
+      - "127.0.0.1:8080:8080"
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
