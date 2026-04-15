@@ -1,6 +1,37 @@
 #!/usr/bin/env bash
-# One-shot bootstrap for a fresh Debian 12 / Ubuntu 24.04 VPS.
-# Run as root. Installs Docker, T-Pot, MaxMind geoipupdate, and this feed.
+# ===========================================================================
+# zdr-honeypot-feed — VPS bootstrap
+# ===========================================================================
+#
+# One-shot installer for a fresh Debian 12 / Ubuntu 24.04 host. Sets up:
+#
+#   1. Docker + UFW
+#   2. T-Pot honeypot (user-type install) — provides cowrie, dionaea, et al.
+#   3. MaxMind geoipupdate with weekly cron refresh of GeoLite2-City.mmdb
+#   4. The zdr-honeypot-feed service (this project) via docker compose
+#   5. A firewall allowing SSH, HTTP, HTTPS, and the honeypot ports
+#
+# Requirements before running:
+#
+#   - Fresh VPS with at least 4 GB RAM (T-Pot is hungry; 2 GB OOMs)
+#   - Moved real SSH off port 22 BEFORE running (cowrie claims :22)
+#   - MaxMind account — free signup at maxmind.com, generate a license key:
+#       export GEOIP_ACCOUNT_ID=...
+#       export GEOIP_LICENSE_KEY=...
+#   - Optional: set FEED_KEY=... to pin a signing key. Otherwise one is
+#     generated and printed at the end — save it, the site consumer needs it.
+#
+# Usage:
+#
+#   ssh root@vps
+#   export GEOIP_ACCOUNT_ID=... GEOIP_LICENSE_KEY=...
+#   curl -fsSL https://raw.githubusercontent.com/rifezacharyd/security/main/\
+#        zdr-honeypot-feed/deploy/bootstrap.sh | bash
+#
+# See the project README for TLS proxy setup, site integration, and key
+# rotation procedures.
+# ===========================================================================
+
 set -euo pipefail
 
 if [[ $EUID -ne 0 ]]; then
